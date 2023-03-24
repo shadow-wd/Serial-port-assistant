@@ -34,6 +34,25 @@ Widget::Widget(QWidget *parent) :
     // 读取数据
     connect(serialPort,SIGNAL(readyRead()),this,SLOT(manual_serialPortReadyRead()));/*手动连接槽函数*/
 
+    //
+    QMap<QString,int> parityvalue;
+    parityvalue.insert("NoParity",1);
+    parityvalue.insert("EvenParity",2);
+    parityvalue.insert("OddParity",3);
+    parityvalue.insert("SpaceParity",4);
+    parityvalue.insert("MarkParity",5);
+
+    // 不知道为什么这里插入的顺序很混乱
+    foreach (const QString &str, parityvalue.keys()) {
+        ui->checkbit->addItem(str,parityvalue.value(str));
+    }
+
+
+    // 设置下拉框默认
+    ui->baudrate->setCurrentText("9600");
+    ui->databit->setCurrentText("8");
+    ui->stopbit->setCurrentText("1");
+    ui->checkbit->setCurrentIndex(2);
 }
 
 Widget::~Widget()
@@ -73,9 +92,8 @@ void Widget::manual_serialPortReadyRead()
     int recnum = 0;
     recbuf = serialPort->readAll();
     recnum = recbuf.size();
-    qDebug("接收到的数据长度:%d",recnum);
-    qDebug()<<"格式化16进制小写输出"<<QString().sprintf("%04x",recbuf);
-//    ui->messagebox->insertPlainText(QString::fromUtf8(serialPort->readAll()));
+//    qDebug("接收到的数据长度:%d",recnum);
+//    qDebug()<<"格式化16进制小写输出"<<QString().sprintf("%04x",recbuf);
     ui->messagebox->insertPlainText(recbuf);
 }
 
@@ -118,15 +136,10 @@ void Widget::on_openport_clicked()
     else if(ui->stopbit->currentText()=="2")
         stopBits=QSerialPort::TwoStop;
 
-    //获取设置的校验位
-    if(ui->checkbit->currentText()=="none")
-        checkBits=QSerialPort::NoParity;
-
     // 设置参数
     serialPort->setPortName(ui->portnumber->currentText());
-//    serialPort->setStopBits(stopBits);
-//    serialPort->setParity(checkBits);
     serialPort->setBaudRate(baudRate);
+
     switch(dataBits){
         case 5:
             serialPort->setDataBits(QSerialPort::Data5);
@@ -145,8 +158,47 @@ void Widget::on_openport_clicked()
             break;
      }
 
-    serialPort->setStopBits(QSerialPort::OneStop);
-    serialPort->setParity(QSerialPort::NoParity);
+
+    if(stopBits == 1){
+        serialPort->setStopBits(QSerialPort::OneStop);
+    }
+    else if(stopBits == 1.5){
+        serialPort->setStopBits(QSerialPort::OneAndHalfStop);
+    }
+    else if(stopBits == 2 ){
+        serialPort->setStopBits(QSerialPort::TwoStop);
+    }
+    else{
+        serialPort->setStopBits(QSerialPort::UnknownStopBits);
+    }
+
+
+
+
+    int ssgh=ui->checkbit->currentIndex();
+    switch(ssgh){
+        case 2:
+            serialPort->setParity(QSerialPort::NoParity);
+
+            break;
+        case 0:
+            serialPort->setParity(QSerialPort::EvenParity);
+            qDebug("adafdafdfadfda");
+            break;
+        case 3:
+            serialPort->setParity(QSerialPort::OddParity);
+            break;
+        case 4:
+            serialPort->setParity(QSerialPort::SpaceParity);
+            break;
+        case 1:
+            serialPort->setParity(QSerialPort::MarkParity);
+            break;
+        default:
+            serialPort->setParity(QSerialPort::UnknownParity);
+            break;
+     }
+
     // 无流控制
     serialPort->setFlowControl(QSerialPort::NoFlowControl);
 
@@ -171,10 +223,14 @@ void Widget::on_send_clicked()
     QTextCodec *codec = QTextCodec::codecForName("GBK");
     QByteArray bytes = codec->fromUnicode(sendstr);
     bytes = sendstr.toLocal8Bit();
+
     // 对发送数据追加回车
-    bytes.append("\r\n");
+    if(ui->enter->isChecked())
+    {
+        bytes.append("\r\n");
+    }
     a= serialPort->write(bytes.data());
-    qDebug("本次数据发送长度:%d",a);
+//    qDebug("本次数据发送长度:%d",a);
 
 
     //每次发送清空发送区域
@@ -192,4 +248,5 @@ void Widget::on_messagebox_textChanged()
 {
     ui->messagebox->moveCursor(QTextCursor::End);
 }
+
 

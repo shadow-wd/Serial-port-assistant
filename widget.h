@@ -1,3 +1,4 @@
+void on_enter_clicked(bool checked);
 #ifndef WIDGET_H
 #define WIDGET_H
 

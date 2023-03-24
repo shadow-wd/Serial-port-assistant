@@ -117,13 +117,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="checkbit">
-      <item>
-       <property name="text">
-        <string>None</string>
-       </property>
-      </item>
-     </widget>
+     <widget class="QComboBox" name="checkbit"/>
     </item>
    </layout>
   </widget>
@@ -239,7 +233,7 @@
   </widget>
   <widget class="QCheckBox" name="enter">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
