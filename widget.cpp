@@ -3,7 +3,6 @@
 #include "QSerialPortInfo"
 #include <QSerialPort>
 #include <QMessageBox>
-
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget)
@@ -232,7 +231,6 @@ void Widget::on_send_clicked()
     a= serialPort->write(bytes.data());
 //    qDebug("本次数据发送长度:%d",a);
 
-
     //每次发送清空发送区域
 //    ui->sendbox->clear();
 }
@@ -250,3 +248,55 @@ void Widget::on_messagebox_textChanged()
 }
 
 
+void Widget::on_savefile_clicked()
+{
+    static QString path;
+    QString schar;
+    char* ch;
+
+
+    QString curpath = QDir::currentPath();
+    path = QFileDialog::getOpenFileName(this, "打开文件",curpath);//返回一个文件的路径
+
+    //读取内容 放入到 textEdit中
+    // QFile默认支持的格式是 utf-8
+    QFile file(path); //参数就是读取文件的路径
+    //设置打开方式
+    file.open(QIODevice::WriteOnly);//只读模式
+
+    schar = ui->messagebox->toPlainText();
+    QByteArray ba = schar.toLatin1();
+    ch = ba.data();
+    file.write(ch);
+    file.close();
+}
+
+
+
+void Widget::on_readfile_clicked()
+{
+    static QString path;
+    QString curpath = QDir::currentPath();
+    path = QFileDialog::getOpenFileName(this, "打开文件",curpath);//返回一个文件的路径
+
+    //读取内容 放入到 textEdit中
+    // QFile默认支持的格式是 utf-8
+    QFile file(path); //参数就是读取文件的路径
+    //设置打开方式
+    file.open(QIODevice::ReadOnly);//只读模式
+
+    //第一种方式
+   // QByteArray array = file.readAll();//全部读出　，返回值为 QByteArray
+
+    //第二种方式
+    QByteArray array;
+    while( !file.atEnd())//判断是否读到文件尾
+    {
+        array += file.readLine(); //按行读，追加
+    }
+
+    //将读取到的数据 放入textEdit中,显示出来
+    ui->messagebox->setText(array);//类型隐式转换
+
+    file.close();
+}

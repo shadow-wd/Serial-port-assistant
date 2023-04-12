@@ -11,7 +11,8 @@ void on_enter_clicked(bool checked);
 #include <QMessageBox>
 #include <QDebug>
 #include<QTextCodec>
-
+#include <QDir>
+#include <QFileDialog>
 namespace Ui {
 class Widget;
 }
@@ -45,10 +46,14 @@ private slots:
     void on_messagebox_textChanged();
 
 
+    void on_savefile_clicked();
+
+    void on_readfile_clicked();
+
 private:
     Ui::Widget *ui;
     QStringList serialNamePort;
     QTimer *timer;
-};
 
+};
 #endif // WIDGET_H
