@@ -295,8 +295,7 @@ void Widget::on_readfile_clicked()
         array += file.readLine(); //按行读，追加
     }
 
-    //将读取到的数据 放入textEdit中,显示出来
-    ui->messagebox->setText(array);//类型隐式转换
-
+    // read cmd file to sendbox
+    ui->sendbox->setPlainText(array);
     file.close();
 }
